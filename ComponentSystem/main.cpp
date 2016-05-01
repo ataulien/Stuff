@@ -1,6 +1,9 @@
 #include <iostream>
 #include <vector>
 #include "StaticReferencedAllocator.h"
+#include "StaticMesh.h"
+#include "VertexTypes.h"
+#include "Materials.h"
 
 using namespace std;
 
@@ -11,7 +14,21 @@ struct Entity
 };
 
 typedef Memory::StaticReferencedAllocator<Entity, 4096> EntityAlloc;
+typedef Memory::StaticReferencedAllocator<Materials::TexturedMaterial, 2048> MaterialAlloc;
 
+struct RenderPacket
+{
+    uint16_t vb;
+    uint16_t ib;
+    uint32_t startIdx;
+    uint32_t numIdx;
+    uint16_t materialIdx;
+};
+
+std::vector<RenderPacket> RenderPackets;
+std::vector<RenderPacket*> RenderPacketsPtr;
+
+typedef Mesh::StaticMesh<Mesh::PositionVertex, uint32_t, uint32_t, uint16_t, uint16_t, 0> MyMeshDyn;
 
 int main()
 {
@@ -39,6 +56,6 @@ int main()
     h = alloc.createObject();
     Entity& e2 = alloc.getElement(h);
     e2.position[0] = 999;
-
+    
     return 0;
 }
