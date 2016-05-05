@@ -1,10 +1,24 @@
 #pragma once
+#include "Handle.h"
+#include "HandleDef.h"
+#include "Texture.h"
 
 namespace Materials
 {
-    template<typename THDL>
-    struct TexturedMaterial
+    /**
+     * Base material-structure
+     * Defines handle-type and other needed properties
+     */
+    struct Material : public Handle::HandleTypeDescriptor<Handle::MaterialHandle>
     {
-        THDL m_TextureHandle;
+
+    };
+
+    /**
+     * Material featuring a diffuse-texture
+     */
+    struct TexturedMaterial : public Material
+    {
+        Textures::Texture::HandleType m_TextureHandle;
     };
 };

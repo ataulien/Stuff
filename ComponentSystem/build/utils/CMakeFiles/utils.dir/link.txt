@@ -1,0 +1,2 @@
+/usr/bin/ar qc libutils.a  CMakeFiles/utils.dir/logger.cpp.o CMakeFiles/utils.dir/mathlib.cpp.o CMakeFiles/utils.dir/split.cpp.o
+/usr/bin/ranlib libutils.a

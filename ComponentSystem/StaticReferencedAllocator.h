@@ -4,15 +4,25 @@
 #include "MemUtils.h"
 #include <assert.h>
 #include <cstring>
+#include <functional>
 
 namespace Memory
 {
+    /**
+     * Max size a GenericHandle can be in bits
+     */
+    enum { GENERIC_HANDLE_MAX_SIZE_BITS = sizeof(uint32_t) * 8 * 2};
+
     template<int N1, int N2>
     struct GenericHandle
     {
         uint32_t index : N1;
         uint32_t generation : N2;
+
+        enum { INVALID_HANDLE = (1U << N1) - 1 };
     };
+
+
 
     /**
      * @param T Type of data stored in the allocator
@@ -22,20 +32,37 @@ namespace Memory
     class StaticReferencedAllocator
     {
     public:
-        //typedef GenericHandle<numberOfBits(NUM), sizeof(void*) - numberOfBits(NUM)> Handle;
-        typedef GenericHandle<12, 20> Handle;
+        typedef GenericHandle<numberOfBits(NUM), std::min(32u, GENERIC_HANDLE_MAX_SIZE_BITS - numberOfBits(NUM))> Handle;
+
+        /**
+         * Outside-Mirror for the type this can create
+         */
+        typedef T Type;
 
         StaticReferencedAllocator() :
+                m_Elements(new T[NUM]),
+                m_ElementsToInternalHandles(new size_t[NUM]),
+                m_InternalHandles(new FLHandle[NUM]),
                 m_FreeList(m_InternalHandles, m_InternalHandles + NUM, sizeof(m_InternalHandles[0]), NUM, sizeof(m_InternalHandles[0]), 0),
                 m_LastInternalHandle(nullptr)
         {
             // Initialize handles
             for (size_t i = 0; i < NUM; i++) {
-                m_InternalHandles[i].m_Handle.index = (1U << 12) - 1;
+                m_InternalHandles[i].m_Handle.index = Handle::INVALID_HANDLE;
                 m_InternalHandles[i].m_Handle.generation = 0;
             }
         }
 
+        virtual ~StaticReferencedAllocator()
+        {
+            delete[] m_Elements;
+            delete[] m_InternalHandles;
+            delete[] m_ElementsToInternalHandles;
+        }
+
+        /**
+         * Returns a handle to a free chunk of memory and marks it as used
+         */
         Handle createObject()
         {
             assert(m_FreeList.getNumObtainedElements() != NUM);
@@ -62,6 +89,9 @@ namespace Memory
             return hOut;
         }
 
+        /**
+         * @return the actual element to the handle h
+         */
         T& getElement(const Handle& h)
         {
             assert(m_InternalHandles[h.index].m_Handle.generation == h.generation);
@@ -69,6 +99,9 @@ namespace Memory
             return m_Elements[m_InternalHandles[h.index].m_Handle.index];
         }
 
+        /**
+         * Marks the element with the given handle as free and calls the "OnRemoved"-Callback before doing so
+         */
         void removeObject(const Handle& h)
         {
             // Check if the handle is still valid. If not, we are accessing a different object!
@@ -77,6 +110,9 @@ namespace Memory
 
             // Get actual index of handle-target
             uint32_t actIdx = m_InternalHandles[h.index].m_Handle.index;
+
+            if(m_OnRemoved)
+                m_OnRemoved(m_Elements[actIdx]);
 
             // Overwrite this element with the last one
             memcpy(&m_Elements[actIdx], &m_Elements[m_LastInternalHandle->m_Handle.index], sizeof(T));
@@ -98,12 +134,35 @@ namespace Memory
                 m_LastInternalHandle = nullptr;
         }
 
+        /**
+         * Sets a callback to what should happen when an object got deleted
+         */
+        void setOnRemoveCallback(const std::function<void(T&)> onRemoved)
+        {
+            m_OnRemoved = onRemoved;
+        }
+
+        /**
+         * Returns all elements as continuous chunk of memory
+         */
+        T* getElements()
+        {
+            return m_Elements;
+        }
+
+        /**
+         * Returns the number of allocated elements, aka. how far to go using getElements()
+         */
+        size_t getNumObtainedElements()
+        {
+            return m_FreeList.getNumObtainedElements();
+        }
     private:
         /** Actual element data */
-        T m_Elements[NUM]; // TODO: Might want this on the heap!
+        T* m_Elements;
 
         /** Contains the index of an internal handle for each element */
-        size_t m_ElementsToInternalHandles[NUM];
+        size_t* m_ElementsToInternalHandles;
 
         /** Helper-struct to get around FreeList needing at least the size of a pointer to operate */
         struct FLHandle
@@ -113,12 +172,15 @@ namespace Memory
         };
 
         /** Make handles with enough bits to hold NUM indices. Use the rest for generations. */
-        FLHandle m_InternalHandles[NUM];
+        FLHandle* m_InternalHandles;
 
         /** Handle to the last element created */
         FLHandle* m_LastInternalHandle;
 
         /** List of free handles */
         FreeList<FLHandle> m_FreeList;
+
+        /** Function to call when an object was removed */
+        std::function<void(T&)> m_OnRemoved;
     };
 }
