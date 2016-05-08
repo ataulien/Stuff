@@ -8,6 +8,9 @@
 			"stopOnEntry": false,
 			//"program": "${file}",
 			"program": "${workspaceRoot}/hyrun.py",
+			"args": [
+				"-m", "27", "12000000", "100"
+			],
 			"pythonPath": "python2.7",
 			"debugOptions": [
 				"WaitOnAbnormalExit",
