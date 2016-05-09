@@ -49,7 +49,7 @@ class DistanceMatrix:
         
     def distance(self, n1, n2):
         """ Returns the distance between the nodes n1 and n2 """
-        return nodes[n1][n2]
+        return self.nodes[n1][n2]
 
     def normalize(self):
         """ Forces all distance-values to between 0 and 1 """

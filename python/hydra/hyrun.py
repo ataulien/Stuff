@@ -3,25 +3,34 @@ import parse_numactl
 import host
 import argparse
 import sys
+import actions
 
-print("Got output: " + host.getNumactlHardware())
+# Global numactl --hardware information
+numaHardware = parse_numactl.HardwareInfo(host.getNumactlHardware());
 
-parser = argparse.ArgumentParser(description='Process some integers.')
-parser.add_argument('-closest', metavar='-c', type=int,
-                   help='outputs a list of nodes, sorted by the distance to the specified node')
+
+# Fill the arguments into the parser
+parser = argparse.ArgumentParser(description='Hydra program startup script. <TODO: MORE DESC>')
+parser.add_argument('-cdf', "--closest", metavar='N', type=int,
+                   help='outputs a list of nodes, sorted by the distance to the specified node.')
                    
-parser.add_argument('-test', metavar='-t', type=int,
-                   help='outputs a list of nodes, sorted by the distance to the specified node')                   
-
-
+parser.add_argument('-m', "--nodeMemorySuggestion", metavar='N', type=str, nargs=3,
+                   help='Displays what nodes to to use to allocate ... TODO! (nodeIdx, maxMB, nodeMinMB)')
+                                 
+# Parse commandline
 args = parser.parse_args()
 
+# Print usage message, if no commands where specified
 if len(sys.argv) <= 1:
     parser.print_usage();
     exit()
 
-if not any(args.values()):
-    parser.error('Use -h to display possible commandline-arguments.')
-    
-print(args.accumulate(args.integers))
+if args.closest != None:
+    actions.printClosestTo(args.closest, numaHardware)
+elif args.nodeMemorySuggestion != None:
+    actions.printNodeMemSuggestion(args.nodeMemorySuggestion[0], 
+                                    args.nodeMemorySuggestion[1], 
+                                    numaHardware, args.nodeMemorySuggestion[2])
+else:
+    print("Nope");
 
