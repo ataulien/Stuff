@@ -67,6 +67,7 @@ def nodesForMemory(nodeIdx, maxMB, hardwareInfo, nodeMinMBFree=0):
     if len(r) != 0:
         return {"list": r, 
             "maxDist": max(dr),
+            "avgDist": sum(dr) / float(len(dr)),
             "memLeft": memLeft}
     else:
         return None 

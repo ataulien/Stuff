@@ -80,7 +80,7 @@ class HardwareInfo:
     firstHyperThreadingCPU = 0
     distanceMatrix = DistanceMatrix([])
     
-    def __init__(self, in_str):
+    def __init__(self, in_str, noHT=False):
         """ Parses the output of numactl --hardware and returns a HardwareInfo-Object """
         
         buf = StringIO.StringIO(in_str)
@@ -128,10 +128,91 @@ class HardwareInfo:
         # Get the first HT-CPU
         self.firstHyperThreadingCPU = self.__getFirstHTCpu()
             
+        # Remove all hyperthreading cores, if wanted
+        if noHT:
+            for cl in self.nodeCPUs:
+                rem = []
+                for c in cl:
+                    if c >= self.firstHyperThreadingCPU:
+                        rem.append(c)
+                for r in rem:
+                    cl.remove(r)
+            
         return        
         
     def __getFirstHTCpu(self):
         """ Returns the first Hyperthreading-CPU by index """
         return int(math.floor(self.totalNumCPUs / 2.0) + 1)
         
+    def getNodeByCPU(self, cpu_idx):
+        """ Returns the node-index of the node the given CPU is on """
+        
+        i = 0
+        for cl in self.nodeCPUs:
+            if cpu_idx in cl:
+                return i
+            i += 1 
+        return -1
+                
+    def invertCPUSet(self, cpu_list, allowHT=True):
+        """ 'Inverts' the given list of CPU-Ids, meaning that it will return a list 
+            containing all available CPUs, except those which where in the input list
+            @param cpu_list List of CPUs to exclude from the output-list
+            @param allowHT Whether to allow Hyperthreading CPUs to appear in the output-list """
+        
+        r = []    
+        for cl in self.nodeCPUs:
+            for c in cl:
+                if not c in cpu_list:
+                    r.append(c)
+        
+        return r
+        
+    def invertNodeSet(self, node_list):
+        """ 'Inverts' the given list of nodes. The output list will contain 
+            all nodes not given in the input list. """
+        
+        r = range(0, self.nodesAvailable)
+        r = [x for x in r if not x in node_list]
+        return r
+        
+    def stripCPUSet(self, cpu_list):
+        """ Leaves only those CPUs in the output list which appear with every other CPU on their corresponding node.
+            CPUs which share the node with CPUs not given in the list, will be removed. """
+        
+        # Only allow cpus of which their nodes cpus are a subset of the input-list
+        return [x for x in cpu_list if set(self.nodeCPUs[self.getNodeByCPU[n]]) < set(cpu_list)]
+                            
+    def stringifySequences(self, id_list):
+        """ Turns the given ID-List into a pretty string usable by dplace, for example.
+            A list of [1,2,3,4,8] will be turned into "1-4,8" """
+            
+        id_list = sorted(id_list)
+        
+        s = ""
+        last = -1
+        for i in id_list:
+            if len(s) == 0:
+                s = str(i)
+            else:
+                # Check if we are on a running sequence
+                if i == last + 1:
+                    if s[-1] != '-':
+                        s += '-'
+                    # If we already have the '-', do nothing while inside the sequence
+                else:
+                    # Place sequence end
+                    if s[-1] == '-':
+                        s += str(last)
+            
+                    # Put the new starting point
+                    s += "," + str(i)
+            
+            last = i
+            
+        if s[-1] == '-':
+            s += str(last)
+            
+        return s
+            
    

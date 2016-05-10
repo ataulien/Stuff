@@ -9,7 +9,7 @@
 			//"program": "${file}",
 			"program": "${workspaceRoot}/hyrun.py",
 			"args": [
-				"-m", "27", "12000000", "100"
+				"--info", "closest", "-n", "12", "--noHT"
 			],
 			"pythonPath": "python2.7",
 			"debugOptions": [

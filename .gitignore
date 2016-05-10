@@ -36,3 +36,6 @@ build/
  
 # clion
 .idea/
+
+# python
+*.pyc
