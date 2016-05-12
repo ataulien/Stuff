@@ -80,6 +80,9 @@ class HardwareInfo:
     firstHyperThreadingCPU = 0
     distanceMatrix = DistanceMatrix([])
     
+    # Map of CPU indices and nodes 
+    nodesByCPUIdx = []
+    
     def __init__(self, in_str, noHT=False):
         """ Parses the output of numactl --hardware and returns a HardwareInfo-Object """
         
@@ -107,7 +110,7 @@ class HardwareInfo:
                     self.nodeCPUs = [0] * self.nodesAvailable
                     self.nodeMemFree = [0] * self.nodesAvailable
                     self.nodeMemSize = [0] * self.nodesAvailable
-                            
+                                                
             if rsection != None:
                 if rsection["name"] == "node distances":
                     # Parse the Node-Distance matrix
@@ -125,6 +128,12 @@ class HardwareInfo:
                 self.nodeMemFree[rmemfree["node"]] = rmemfree["free"];
                     
             i += 1
+            
+        # FIXME: This is pretty much bruteforce, O(n^2),
+        #        but I don't wrap my head around calculating these now
+        self.nodesByCPUIdx = [0] * self.totalNumCPUs
+        for i in xrange(0, self.totalNumCPUs):
+            self.nodesByCPUIdx[i] = __getNodeByCPU(i)
             
         # Get the first HT-CPU
         self.firstHyperThreadingCPU = self.__getFirstHTCpu()
@@ -147,12 +156,12 @@ class HardwareInfo:
         
     def getNodeByCPU(self, cpu_idx):
         """ Returns the node-index of the node the given CPU is on """
+        return self.nodesByCPUIdx[cpu_idx]
+        
+    def __getNodeByCPU(self, cpu_idx):
+        """ Returns the node-index of the node the given CPU is on """
         
         # Guess first
-        gidx = int(math.floor(cpu_idx / len(self.nodeCPUs[0])))
-        print("Guessing for " + str(cpu_idx) + ": " + str(gidx))
-        if cpu_idx in self.nodeCPUs:
-            return gidx
         
         # Couldn't find it there, search everywhere
         # TODO: This is pretty slow. Improve!
