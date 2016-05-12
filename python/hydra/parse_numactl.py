@@ -119,7 +119,7 @@ class HardwareInfo:
             if rcpu != None:
                 # Add the list of all CPUs of this node
                 self.nodeCPUs[rcpu["node"]] = [int(n) for n in rcpu["nlist"].split(' ')]
-                self.totalNumCPUs = max(self.totalNumCPUs, max(self.nodeCPUs[rcpu["node"]]))
+                self.totalNumCPUs = max(self.totalNumCPUs, max(self.nodeCPUs[rcpu["node"]]) + 1)
             
             if rmemsize != None:
                 self.nodeMemSize[rmemsize["node"]] = rmemsize["size"];
