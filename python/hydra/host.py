@@ -28,7 +28,7 @@ def getDplaceQQQ():
     # return f.read();
     
 def getDlookByName(name):
-    pid = subprocess.check_output(["pgrep"], name)
+    pid = subprocess.check_output(["pgrep", name])
     out = subprocess.check_output(["dlook", pid])
   
     # f = open("dlook.txt", "r")
