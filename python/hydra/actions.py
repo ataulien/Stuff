@@ -3,6 +3,8 @@ import parse_dplace
 import parse_dlook
 import host
 import util
+import parse_numactl
+import parse_dplace
 
 def memStringToMByte(memstr):
     """ Checks whether the unit was added to the given memory-size value and converts it to megabytes.
@@ -83,8 +85,24 @@ def printProcInfo(args, hardwareInfo, processInfo):
         
     print(" - Total: " + util.formatByteSize(pinfo.totalMemoryUsed))
     
-def printInfo(args, hardwareInfo, processInfo):
+def printInfo(args):
     """ Prints all (un)used nodes and CPUs or distance-information about a given node """
+    
+    # numactl --hardware information
+    
+    hardwareInfo = parse_numactl.HardwareInfo("")
+    try:
+        hardwareInfo = parse_numactl.HardwareInfo(host.getNumactlHardware(), args.noHT)
+    except Exception as e:
+        print("Could not get hardware info. Exception:" + e.message)
+    
+    processInfo = parse_dplace.ProcessInfo("")
+    try:
+        processInfo = parse_dplace.ProcessInfo(host.getDplaceQQQ())
+    except Exception as e:
+        print("Could not get process info. Exception:" + e.message)
+    
+            
     
     # Get list of used and unsused CPUs/Nodes
     # TODO: Use dlook to check whether a node is used by a process on a different node
@@ -99,11 +117,15 @@ def printInfo(args, hardwareInfo, processInfo):
         print(str(len(usedNodes)) + " used Nodes: " + util.stringifySequences(usedNodes))
         print(str(len(usedCPUs)) + " used CPUs: " + util.stringifySequences(usedCPUs))
         print("")
-        print("Process CPU summary:")
         
-        # Print all CPUs used by the given process
-        for j in processInfo.processes:
-            print(" - " + j + ": " + util.stringifySequences(processInfo.getCPUsByJobname(j)))
+        if len(processInfo.processes) > 0:          
+            print("Process CPU summary:")
+        
+            # Print all CPUs used by the given process
+            for j in processInfo.processes:
+                print(" - " + j + ": " + util.stringifySequences(processInfo.getCPUsByJobname(j)))
+        else:
+            print("No processes running.")
         
     elif args.info == "free":
         print(str(len(unusedNodes)) + " unused Nodes: " + util.stringifySequences(unusedNodes))

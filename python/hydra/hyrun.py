@@ -1,6 +1,4 @@
 import evaluate
-import parse_numactl
-import parse_dplace
 import host
 import argparse
 import sys
@@ -43,11 +41,7 @@ if len(sys.argv) <= 1:
     parser.print_usage();
     exit()
 
-# Global numactl --hardware information
-hardwareInfo = parse_numactl.HardwareInfo(host.getNumactlHardware(), args.noHT)
-processInfo = parse_dplace.ProcessInfo(host.getDplaceQQQ())
-
 if args.info != None:
-    actions.printInfo(args, hardwareInfo, processInfo)
+    actions.printInfo(args)
 
 

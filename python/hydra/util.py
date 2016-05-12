@@ -25,7 +25,8 @@ def stringifySequences(id_list):
             
             last = i
             
-        if s[-1] == '-':
+        
+        if len(s) and s[-1] == '-':
             s += str(last)
             
         return s
