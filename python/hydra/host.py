@@ -1,5 +1,5 @@
 import subprocess
-"""
+
 if "check_output" not in dir( subprocess ): # duck punch it in!
     def f(*popenargs, **kwargs):
         if 'stdout' in kwargs:
@@ -54,4 +54,4 @@ def getDlookByPID(pid_str):
         print("dlook failed. '" + out + "'")
         return ""
         
-    return out
+    return out"""
