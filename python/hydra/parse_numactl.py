@@ -156,7 +156,6 @@ class HardwareInfo:
         
     def getNodeByCPU(self, cpu_idx):
         """ Returns the node-index of the node the given CPU is on """
-        print(cpu_idx)
         return self.nodesByCPUIdx[cpu_idx]
         
     def __getNodeByCPU(self, cpu_idx):
