@@ -1,1 +1,0 @@
-/usr/bin/c++    -Ofast -O3 -s -flto -ffast-math -march=native -fomit-frame-pointer -O3 -DNDEBUG   CMakeFiles/ComponentSystem.dir/main.o CMakeFiles/ComponentSystem.dir/World.o CMakeFiles/ComponentSystem.dir/ComponentSystem.o CMakeFiles/ComponentSystem.dir/systems/rendersystem/RenderSystem.o  -o ComponentSystem -rdynamic 
