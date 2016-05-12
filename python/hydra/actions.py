@@ -71,11 +71,11 @@ def printProcInfo(args, hardwareInfo, processInfo):
     pinfo = parse_dlook.SingleProcessInfo()
     
     if args.proc.isdigit(): # Look for pid
-        pinfo = parse_dlook.SingleProcessInfo(host.getDlookByName(args.proc))
+        pinfo = parse_dlook.SingleProcessInfo(host.getDlookByPID(args.proc))
     else:
         # Aggregate all processes
         for pid in host.getPIDListByProcName(args.proc):
-            parse_dlook.SingleProcessInfo(host.getDlookByName(pid))
+            parse_dlook.SingleProcessInfo(host.getDlookByPID(pid))
     
     print("Process summary for '" + args.proc + "':")
     print(" - CPUs:")
