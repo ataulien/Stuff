@@ -148,6 +148,14 @@ class HardwareInfo:
     def getNodeByCPU(self, cpu_idx):
         """ Returns the node-index of the node the given CPU is on """
         
+        # Guess first
+        gidx = int(math.floor(cpu_idx / len(nodeCPUs[0])))
+        print("Guessing for " + str(cpu_idx) + ": " + gidx)
+        if cpu_idx in self.nodeCPUs:
+            return gidx
+        
+        # Couldn't find it there, search everywhere
+        # TODO: This is pretty slow. Improve!
         i = 0
         for cl in self.nodeCPUs:
             
