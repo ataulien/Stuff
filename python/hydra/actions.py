@@ -92,13 +92,16 @@ def printProcInfo(args, hardwareInfo, processInfo):
         print("     Indices: " + util.stringifySequences(cpus))
     
     print("     Nodes: " + util.stringifySequences(list(nodes)))
-    print(" - Memory on: ")
     
-    for n in pinfo.nodesAllocatedOn:
-        print("     Node " + str(n[0]) + ": " + util.formatByteSize(n[1]))
+    if pinfo.totalMemoryUsed != 0:
+        print(" - Memory on: ")
+    
+        for n in pinfo.nodesAllocatedOn:
+            print("     Node " + str(n[0]) + ": " + util.formatByteSize(n[1]))
         
-    print(" - Total: " + util.formatByteSize(pinfo.totalMemoryUsed))
-    
+        print(" - Total: " + util.formatByteSize(pinfo.totalMemoryUsed))
+    else:
+        print("(Memory information access denied or failed)")
     
     
     
