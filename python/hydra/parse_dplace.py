@@ -47,7 +47,7 @@ class ProcessInfo:
             for p in self.processes[n]:
                 r.append(p["cpu"])
         
-        r = sorted(r)
+        r = list(set(sorted(r))
         
         return r
         
