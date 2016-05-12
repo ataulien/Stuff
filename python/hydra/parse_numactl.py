@@ -149,7 +149,7 @@ class HardwareInfo:
         """ Returns the node-index of the node the given CPU is on """
         
         # Guess first
-        gidx = int(math.floor(cpu_idx / len(nodeCPUs[0])))
+        gidx = int(math.floor(cpu_idx / len(self.nodeCPUs[0])))
         print("Guessing for " + str(cpu_idx) + ": " + gidx)
         if cpu_idx in self.nodeCPUs:
             return gidx
