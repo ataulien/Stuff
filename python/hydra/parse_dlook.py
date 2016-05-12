@@ -39,15 +39,17 @@ class SingleProcessInfo:
         self.nodesAllocatedOn = nodeSet.items()
         
     def aggregate(self, spList): 
-        # Generate dict again
-        nodeSet = dict((key, value) for (key, value) in self.nodesAllocatedOn)
-    
-        for p in spList:
-            self.totalMemoryUsed += p.totalMemoryUsed
+
+        nodeSet = {}
+        self.totalMemoryUsed = 0
+        
+        for sp in spList:
+            self.totalMemoryUsed += sp.totalMemoryUsed
             
-            if not p[0] in nodeSet:
+            for p in sp.nodesAllocatedOn:
+                if not p[0] in nodeSet:
                     nodeSet[p[0]] = 0
                     
-            nodeSet[p[0]] += p[1]
+                nodeSet[p[0]] += p[1]
             
-        self.nodesAllocatedOn += nodeSet.items()   
+        self.nodesAllocatedOn = nodeSet.items()   
