@@ -1,5 +1,8 @@
 import evaluate
 import parse_dplace
+import parse_dlook
+import host
+import util
 
 def memStringToMByte(memstr):
     """ Checks whether the unit was added to the given memory-size value and converts it to megabytes.
@@ -51,6 +54,35 @@ def printClosestTo(args, hardwareInfo):
     for d in sorted(dmap):
         print( " - " + str(d) + ": " + str(dmap[d])[1:-1])
     
+def printProcInfo(args, hardwareInfo, processInfo):
+    """ Prints information about the process given in args.proc """
+    
+    # Retrieve basic information about used CPUs and which nodes these CPUs are on
+    cpus = processInfo.getCPUsByJobname(args.proc)
+    nodes = set()
+    for c in cpus:
+        nodes.add(hardwareInfo.getNodeByCPU(c))
+    
+    # Query dlook for more information
+    pinfo = parse_dlook.SingleProcessInfo(host.getDlookByName(args.proc))
+    
+    print("Process summary for '" + args.proc + "':")
+    print(" - CPUs:")
+    print("     Total: " + str(len(cpus)))
+    
+    if len(cpus) == 1:
+        print("     Index: " + str(cpus[0]))
+    else:
+        print("     Indices: " + util.stringifySequences(cpus))
+    
+    print("     Nodes: " + util.stringifySequences(list(nodes)))
+    print(" - Memory on: ")
+    
+    for n in pinfo.nodesAllocatedOn:
+        print("     Node " + str(n[0]) + ": " + util.formatByteSize(n[1]))
+        
+    print(" - Total: " + util.formatByteSize(pinfo.totalMemoryUsed))
+    
 def printInfo(args, hardwareInfo, processInfo):
     """ Prints all (un)used nodes and CPUs or distance-information about a given node """
     
@@ -64,16 +96,28 @@ def printInfo(args, hardwareInfo, processInfo):
     unusedNodes = hardwareInfo.invertNodeSet(usedNodes)
     
     if args.info == "used":
-        print(str(len(usedNodes)) + " used Nodes: " + hardwareInfo.stringifySequences(usedNodes))
-        print(str(len(usedCPUs)) + " used CPUs: " + hardwareInfo.stringifySequences(usedCPUs))
+        print(str(len(usedNodes)) + " used Nodes: " + util.stringifySequences(usedNodes))
+        print(str(len(usedCPUs)) + " used CPUs: " + util.stringifySequences(usedCPUs))
+        print("")
+        print("Process CPU summary:")
+        
+        # Print all CPUs used by the given process
+        for j in processInfo.processes:
+            print(" - " + j + ": " + util.stringifySequences(processInfo.getCPUsByJobname(j)))
         
     elif args.info == "free":
-        print(str(len(unusedNodes)) + " unused Nodes: " + hardwareInfo.stringifySequences(unusedNodes))
-        print(str(len(unusedCPUs)) + " unused CPUs: " + hardwareInfo.stringifySequences(unusedCPUs))
+        print(str(len(unusedNodes)) + " unused Nodes: " + util.stringifySequences(unusedNodes))
+        print(str(len(unusedCPUs)) + " unused CPUs: " + util.stringifySequences(unusedCPUs))
     
     elif args.info == "closest":
         if args.node == None:
             print(""" "closest"-operation needs source-node specified by -n """)
-            exit()
+            exit()         
         
         printClosestTo(args, hardwareInfo)
+    elif args.info == "proc":
+        if args.proc == None:
+            print(""" "proc"-operation needs process specified by -p """)
+            exit()  
+        
+        printProcInfo(args, hardwareInfo, processInfo)

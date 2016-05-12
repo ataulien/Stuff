@@ -36,6 +36,17 @@ class ProcessInfo:
                 r.append(p["cpu"])
         
         return r
+        
+    def getCPUsByJobname(self, job):
+        """ Returns a list of all currently used CPUs of the given job """
+        
+        if not job in self.processes:
+            return []
+        
+        ls = []
+        for p in self.processes[job]:
+            ls.append(p["cpu"]) 
        
+        return ls
             
         
