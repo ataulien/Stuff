@@ -38,4 +38,4 @@ def getDlookByName(name):
     #     print("dlook failed. '" + out + "'")
     #     return ""
         
-    # return out
+    return out
