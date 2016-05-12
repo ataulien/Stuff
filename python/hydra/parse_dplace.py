@@ -12,9 +12,11 @@ class ProcessInfo:
         lines = [' '.join(l.split()) for l in lines] # Remove whitespace
         
         i = 0
+        lastJob = None
         for l in lines:
             # Parse all possible line-types
             rjob = parse("0x{key} {nTasks:d} {owner} {pid:d} {cpu:d} {name}", l)
+            rfork = parse("{pid} {cpu} {name}", l)
             
             if rjob != None:
                 # Init with an empty list, if this is the first entry
@@ -26,6 +28,16 @@ class ProcessInfo:
                                                 "pid":rjob["pid"], 
                                                 "cpu":rjob["cpu"],   
                                                 "name":rjob["name"]})
+                lastJob = rjob
+            elif rfork != None && lastJob != None:
+                # Forked process use an other format, but are listed below the parent
+                self.processes[lastJob["name"]].append({"nTasks":lastJob["nTasks"], 
+                                                "owner":lastJob["owner"], 
+                                                "pid":rfork["pid"], 
+                                                "cpu":rfork["cpu"],   
+                                                "name":rfork["name"]})
+                
+            
 
     def getUsedCPUSet(self):
         """ Returns a list of all currently used CPUs """
