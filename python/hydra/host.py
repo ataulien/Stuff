@@ -15,6 +15,10 @@ if "check_output" not in dir( subprocess ): # duck punch it in!
         return output
     subprocess.check_output = f
 
+def getOutput(*popenargs, **kwargs):
+    process = subprocess.Popen(stdout=subprocess.PIPE, stderr=subprocess.PIPE, *popenargs, **kwargs) # Thanks dlook, for just writing everything to stderr!
+    out, err = process.communicate()
+    return out + err
 
 def getNumactlHardware():
     return subprocess.check_output(["numactl", "--hardware"])
@@ -29,12 +33,12 @@ def getDplaceQQQ():
     # return f.read();
     
 def getDlookByPID(pid):
-    out = subprocess.check_output(["dlook", pid])        
+    out = getOutput(["dlook", pid])        
     return out
-    """
+    
 def getPIDListByProcName(name):
-    return ["249685"]
-
+    return getOutput(["pgrep", name]).split()
+    """
 def getNumactlHardware():
     f = open("numactl_hardware.txt", "r")
 
