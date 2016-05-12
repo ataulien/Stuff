@@ -150,9 +150,13 @@ class HardwareInfo:
         
         i = 0
         for cl in self.nodeCPUs:
+            
             if cpu_idx in cl:
                 return i
-            i += 1 
+            i += 1
+            
+        print("Failed to find CPU with index: " + str(cpu_idx))
+        print(self.nodeCPUs)
         return -1
                 
     def invertCPUSet(self, cpu_list, allowHT=True):
