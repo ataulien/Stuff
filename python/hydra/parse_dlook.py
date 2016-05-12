@@ -4,8 +4,12 @@ from parse import *
 class SingleProcessInfo:
     totalMemoryUsed = 0
     nodesAllocatedOn = [] # Pair of (nodeIdx, bytes)
-    def __init__(self, in_str): 
+        
+    def __init__(self, in_str=""): 
         """ Parses the output of dlook <PID> """
+        
+        if in_str == "":
+            return
         
         buf = StringIO.StringIO(in_str)
         lines = buf.readlines()
@@ -33,3 +37,17 @@ class SingleProcessInfo:
                 nodeSet[rpages["node"]] += memPages
                            
         self.nodesAllocatedOn = nodeSet.items()
+        
+    def aggregate(self, spList): 
+        # Generate dict again
+        nodeSet = dict((key, value) for (key, value) in self.nodesAllocatedOn)
+    
+        for p in spList:
+            self.totalMemoryUsed += p.totalMemoryUsed
+            
+            if not p[0] in nodeSet:
+                    nodeSet[p[0]] = 0
+                    
+            nodeSet[p[0]] += p[1]
+            
+        self.nodesAllocatedOn += nodeSet.items()   

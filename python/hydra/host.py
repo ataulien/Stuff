@@ -15,6 +15,7 @@ if "check_output" not in dir( subprocess ): # duck punch it in!
         return output
     subprocess.check_output = f
 
+
 def getNumactlHardware():
     return subprocess.check_output(["numactl", "--hardware"])
     # f = open("numactl_hardware.txt", "r")
@@ -29,8 +30,8 @@ def getDplaceQQQ():
     
 def getDlookByName(name):
     
-    if name.isdigit():
-        pid = subprocess.check_output(["pgrep", name])
+    if not name.isdigit():
+        pids_str = subprocess.check_output(["pgrep", name])
         out = subprocess.check_output(["dlook", pid])
     else:
         out = subprocess.check_output(["dlook", name])
@@ -43,3 +44,29 @@ def getDlookByName(name):
     #     return ""
         
     return out
+    
+def getPIDListByProcName(name):
+    pids_str = subprocess.check_output(["pgrep", name])
+    return pids_str.split()
+   
+""" 
+def getNumactlHardware():
+    f = open("numactl_hardware.txt", "r")
+
+    return f.read();
+    
+def getDplaceQQQ():
+    f = open("place_qqq.txt", "r")
+
+    return f.read();
+    
+def getDlookByPID(pid_str):
+            
+    f = open("dlook.txt", "r")
+    out = f.read();
+    
+    if not out.startswith("Peek:"):
+        print("dlook failed. '" + out + "'")
+        return ""
+        
+    return out"""

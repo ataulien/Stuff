@@ -56,6 +56,8 @@ def printClosestTo(args, hardwareInfo):
     for d in sorted(dmap):
         print( " - " + str(d) + ": " + str(dmap[d])[1:-1])
     
+    
+    
 def printProcInfo(args, hardwareInfo, processInfo):
     """ Prints information about the process given in args.proc """
     
@@ -66,7 +68,14 @@ def printProcInfo(args, hardwareInfo, processInfo):
         nodes.add(hardwareInfo.getNodeByCPU(c))
     
     # Query dlook for more information
-    pinfo = parse_dlook.SingleProcessInfo(host.getDlookByName(args.proc))
+    pinfo = parse_dlook.SingleProcessInfo()
+    
+    if args.proc.isdigit(): # Look for pid
+        pinfo = parse_dlook.SingleProcessInfo(host.getDlookByName(args.proc))
+    else:
+        # Aggregate all processes
+        for pid in host.getPIDListByProcName(args.proc):
+            parse_dlook.SingleProcessInfo(host.getDlookByName(pid))
     
     print("Process summary for '" + args.proc + "':")
     print(" - CPUs:")
@@ -84,6 +93,9 @@ def printProcInfo(args, hardwareInfo, processInfo):
         print("     Node " + str(n[0]) + ": " + util.formatByteSize(n[1]))
         
     print(" - Total: " + util.formatByteSize(pinfo.totalMemoryUsed))
+    
+    
+    
     
 def printInfo(args):
     """ Prints all (un)used nodes and CPUs or distance-information about a given node """
