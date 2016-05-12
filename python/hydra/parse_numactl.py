@@ -99,7 +99,7 @@ class HardwareInfo:
             if rvalue != None:
                 if rvalue["name"] == "available":
                     # Parse number and range of available nodes
-                    rn = parse("{n:d} nodes ({nodes:d})", rvalue["body"])
+                    rn = parse("{n:d} nodes ({nodes})", rvalue["body"])
                                        
                     self.nodesAvailable = int(rn["n"])
                     
