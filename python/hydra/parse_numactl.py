@@ -150,7 +150,7 @@ class HardwareInfo:
         
         # Guess first
         gidx = int(math.floor(cpu_idx / len(self.nodeCPUs[0])))
-        print("Guessing for " + str(cpu_idx) + ": " + gidx)
+        print("Guessing for " + str(cpu_idx) + ": " + str(gidx))
         if cpu_idx in self.nodeCPUs:
             return gidx
         
