@@ -133,7 +133,7 @@ class HardwareInfo:
         #        but I don't wrap my head around calculating these now
         self.nodesByCPUIdx = [0] * self.totalNumCPUs
         for i in xrange(0, self.totalNumCPUs):
-            self.nodesByCPUIdx[i] = __getNodeByCPU(i)
+            self.nodesByCPUIdx[i] = self.__getNodeByCPU(i)
             
         # Get the first HT-CPU
         self.firstHyperThreadingCPU = self.__getFirstHTCpu()
@@ -156,6 +156,7 @@ class HardwareInfo:
         
     def getNodeByCPU(self, cpu_idx):
         """ Returns the node-index of the node the given CPU is on """
+        print(cpu_idx)
         return self.nodesByCPUIdx[cpu_idx]
         
     def __getNodeByCPU(self, cpu_idx):

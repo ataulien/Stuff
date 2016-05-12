@@ -61,8 +61,15 @@ class ProcessInfo:
         for p in self.processes[job]:
             ls.append(p["cpu"]) 
        
-        ls = sorted(ls)
+        ls = list(set(sorted(ls)))
        
         return ls
+        
+    def getProcessesByJobname(self, job):
+        """ Returns the list of processes for the given jobname """
+        
+        if not job in self.processes:
+            return []
             
+        return self.processes[job] 
         

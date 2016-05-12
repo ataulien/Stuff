@@ -82,6 +82,7 @@ def printProcInfo(args, hardwareInfo, processInfo):
         pinfo.aggregate(plist)
     
     print("Process summary for '" + args.proc + "':")
+    print(" - Num processes: " + str(len(processInfo.getProcessesByJobname(args.proc))))
     print(" - CPUs:")
     print("     Total: " + str(len(cpus)))
     
