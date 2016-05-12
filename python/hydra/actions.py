@@ -94,13 +94,13 @@ def printInfo(args):
     try:
         hardwareInfo = parse_numactl.HardwareInfo(host.getNumactlHardware(), args.noHT)
     except Exception as e:
-        print("Could not get hardware info. Exception:" + e.message)
+        print("Could not get hardware info.")
     
     processInfo = parse_dplace.ProcessInfo("")
     try:
         processInfo = parse_dplace.ProcessInfo(host.getDplaceQQQ())
     except Exception as e:
-        print("Could not get process info. Exception:" + e.message)
+        print("Could not get process info.")
     
             
     
